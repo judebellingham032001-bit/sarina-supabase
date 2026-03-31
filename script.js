@@ -1,6 +1,6 @@
 // ISI FILE script.js
 const SUPABASE_URL = 'https://lrcfmhxaeocrzddjqcye.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_K0ssZjXCyRtBkQHmuvIoEw_jXqVKUPe'; // <--- Tempel kuncinya langsung di sini!
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxyY2ZtaHhhZW9jcnpkZGpxY3llIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4MzAxMjYsImV4cCI6MjA5MDQwNjEyNn0.VuWMwyOXy_FtteyOMQvCjszmKnu3Y2QKcN-mkpyWFGc'; // <--- Tempel kuncinya langsung di sini!
 
 // Pastikan panggilannya 'supabase.createClient'
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);

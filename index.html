@@ -9,24 +9,23 @@
 </head>
 <body>
     <h1>📦 Dashboard Sarina</h1>
-    <div class="menu">
-        <button>Stok Barang</button>
-        <button disabled>Kas (Soon)</button>
-        <button disabled>Pengiriman (Soon)</button>
+    
+    <div class="menu-nav">
+        <button onclick="pindahMenu('stok')">📦 Stok Barang</button>
+        <button onclick="pindahMenu('kas')">💰 Kas</button>
+        <button onclick="pindahMenu('pengiriman')">🚚 Pengiriman</button>
     </div>
+
+    <h2 id="judul-halaman">Stok Barang</h2>
+
     <table>
-        <thead>
-            <tr>
-                <th>Nama Produk</th>
-                <th>Stok</th>
-                <th>Satuan</th>
-                <th>Status</th>
-            </tr>
-        </thead>
+        <thead id="tabel-head">
+            </thead>
         <tbody id="tabel-body">
             <tr><td colspan="4">Memuat data...</td></tr>
         </tbody>
     </table>
+
     <script src="script.js"></script>
 </body>
 </html>

@@ -1,10 +1,12 @@
+// ISI FILE script.js
 const SUPABASE_URL = 'https://lrcfmhxaeocrzddjqcye.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_K0ssZjXCyRtBkQHmuvIoEw_jXqVKUPe'; 
+const SUPABASE_KEY = 'sb_publishable_K0ssZjXCyRtBkQHmuvIoEw_jXqVKUPe'; // <--- Tempel kuncinya langsung di sini!
+
+// Pastikan panggilannya 'supabase.createClient'
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let menuAktif = 'stok';
 
-// Fungsi buat ganti menu pas tombol diklik
 function pindahMenu(menu) {
     menuAktif = menu;
     const judul = {
@@ -13,7 +15,7 @@ function pindahMenu(menu) {
         'pengiriman': '🚚 Status Pengiriman'
     };
     document.getElementById('judul-halaman').innerText = judul[menu];
-    ambilData(); // Langsung tarik data baru
+    ambilData();
 }
 
 async function ambilData() {
@@ -27,11 +29,11 @@ async function ambilData() {
     const { data, error } = await _supabase.from(namaTabel).select('*');
 
     if (error) {
+        console.error(error);
         tbody.innerHTML = `<tr><td colspan="4">Error: ${error.message}</td></tr>`;
         return;
     }
 
-    // LOGIKA TAMPILAN TABEL
     if (menuAktif === 'stok') {
         thead.innerHTML = `<tr><th>Nama Produk</th><th>Stok</th><th>Satuan</th><th>Status</th></tr>`;
         tbody.innerHTML = data.map(item => `
@@ -43,17 +45,15 @@ async function ambilData() {
                     ${item.stok <= 2 ? 'Tipis' : 'Aman'}
                 </td>
             </tr>`).join('');
-
     } else if (menuAktif === 'kas') {
         thead.innerHTML = `<tr><th>Tanggal</th><th>Keterangan</th><th>Jumlah</th><th>Tipe</th></tr>`;
         tbody.innerHTML = data.map(item => `
             <tr>
-                <td>${new Date(item.created_at).toLocaleDateString('id-ID')}</td>
+                <td>${new Date(item.created_at || Date.now()).toLocaleDateString('id-ID')}</td>
                 <td>${item.keterangan || '-'}</td>
-                <td>Rp ${parseInt(item.jumlah).toLocaleString('id-ID')}</td>
+                <td>Rp ${parseInt(item.jumlah || 0).toLocaleString('id-ID')}</td>
                 <td style="color: ${item.tipe === 'Masuk' ? 'green' : 'red'}; font-weight:bold;">${item.tipe}</td>
             </tr>`).join('');
-
     } else if (menuAktif === 'pengiriman') {
         thead.innerHTML = `<tr><th>Penerima</th><th>Ekspedisi</th><th>Resi</th><th>Status</th></tr>`;
         tbody.innerHTML = data.map(item => `
@@ -66,5 +66,4 @@ async function ambilData() {
     }
 }
 
-// Jalankan pertama kali
 document.addEventListener('DOMContentLoaded', ambilData);

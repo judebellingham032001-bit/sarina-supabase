@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Sarina</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>📦 Dashboard Sarina</h1>
+    <div class="menu">
+        <button>Stok Barang</button>
+        <button disabled>Kas (Soon)</button>
+        <button disabled>Pengiriman (Soon)</button>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Nama Produk</th>
+                <th>Stok</th>
+                <th>Satuan</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody id="tabel-body">
+            <tr><td colspan="4">Memuat data...</td></tr>
+        </tbody>
+    </table>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,5 +1,5 @@
-const SUPABASE_URL = 'https://xyz.supabase.co'; // Ganti ini
-const SUPABASE_KEY = 'eyJhbG...'; // Ganti ini
+const SUPABASE_URL = 'https://lrcfmhxaeocrzddjqcye.supabase.co'; // Ganti ini
+const SUPABASE_KEY = 'sb_publishable_K0ssZjXCyRtBkQHMuvIoEw_jXqVKUPe'; // Ganti ini
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 async function ambilData() {

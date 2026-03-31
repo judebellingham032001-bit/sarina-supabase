@@ -1,4 +1,4 @@
-alert("Halo! Script jalan!");
+alert("Halo! MEKI jalan!");
 console.log("Script mulai berjalan...");
 
 const SUPABASE_URL = 'https://lrcfmhxaeocrzddjqcye.supabase.co'; // Ganti ini

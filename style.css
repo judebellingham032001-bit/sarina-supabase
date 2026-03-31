@@ -1,0 +1,6 @@
+body { font-family: Arial; padding: 20px; }
+table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+th { background: #eee; }
+.menu { margin-bottom: 20px; }
+button { padding: 8px 15px; margin-right: 5px; }

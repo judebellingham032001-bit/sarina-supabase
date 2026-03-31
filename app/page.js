@@ -13,11 +13,14 @@ export default function Home() {
 
   useEffect(() => {
     async function ambilData() {
-      const { data } = await supabase.from('data_stok').select('*')
-      if (data) setStok(data)
-    }
-    ambilData()
-  }, [])
+const { data, error } = await supabase.from('data_stok').select('*')
+      
+      if (error) {
+        console.error('Ada error nih, Bos:', error.message)
+      } else {
+        console.log('Data masuk:', data)
+        setStok(data)
+      }
 
   return (
     <div style={{ padding: '20px' }}>

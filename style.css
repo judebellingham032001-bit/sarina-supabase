@@ -1,6 +1,18 @@
-body { font-family: Arial; padding: 20px; }
-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-th { background: #eee; }
-.menu { margin-bottom: 20px; }
-button { padding: 8px 15px; margin-right: 5px; }
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background-color: #f4f7f6; }
+h1 { color: #333; }
+.menu-nav { margin-bottom: 20px; }
+button { 
+    padding: 10px 20px; 
+    margin-right: 10px; 
+    cursor: pointer; 
+    border: none; 
+    border-radius: 5px; 
+    background-color: #007bff; 
+    color: white;
+    transition: 0.3s;
+}
+button:hover { background-color: #0056b3; }
+table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #ddd; }
+th { background-color: #eee; color: #333; }
+tr:hover { background-color: #f9f9f9; }

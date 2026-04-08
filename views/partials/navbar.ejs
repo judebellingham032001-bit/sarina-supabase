@@ -1,0 +1,11 @@
+<% if (typeof menu === 'undefined') { var menu = 'none'; } %>
+<nav class="navbar navbar-expand navbar-dark bg-dark border-bottom border-success mb-4 shadow-sm">
+  <div class="container">
+    <a class="navbar-brand fw-bold text-success" href="/">SARINA SYSTEM</a>
+    <div class="navbar-nav">
+      <a class="nav-link <%= menu === 'shipping' ? 'active text-success fw-bold' : '' %>" href="/">📦 Shipping</a>
+      <a class="nav-link <%= menu === 'stok' ? 'active text-success fw-bold' : '' %>" href="/stok">📊 Stok</a>
+      <a class="nav-link <%= menu === 'kas' ? 'active text-success fw-bold' : '' %>" href="/kas">💰 Kas</a>
+    </div>
+  </div>
+</nav>

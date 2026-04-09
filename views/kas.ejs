@@ -1,23 +1,42 @@
 <%- include('partials/navbar') %>
 
 <style>
-    body { background-color: #f0f2f5; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    .app-container { max-width: 480px; margin: 0 auto; padding: 15px; }
-    .card-custom { background: white; border-radius: 20px; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-    .btn-primary { background-color: #007bff; border: none; border-radius: 12px; font-weight: 600; }
-    .form-select, .form-control { border-radius: 10px; border: 1px solid #eee; background-color: #f8f9fa; }
-    .trx-card { background: white; border-radius: 15px; padding: 15px; margin-bottom: 12px; transition: 0.3s; border-left: 5px solid transparent; }
-    .trx-masuk { border-left-color: #28a745; }
-    .trx-keluar { border-left-color: #dc3545; }
-    .fab-add { position: fixed; bottom: 25px; right: 20px; width: 60px; height: 60px; border-radius: 50%; font-size: 28px; box-shadow: 0 8px 20px rgba(0,123,255,0.4); z-index: 1000; }
+    body { background-color: #f4f6f9; }
+    .app-container { max-width: 500px; margin: 0 auto; padding: 15px; }
+    
+    /* Widget Saldo Besar di Atas */
+    .saldo-card { 
+        background: linear-gradient(135deg, #007AFF 0%, #0056b3 100%); 
+        border-radius: 25px; padding: 25px; color: white; margin-bottom: 20px;
+        box-shadow: 0 10px 20px rgba(0,122,255,0.2);
+    }
+    
+    .filter-card { background: white; border-radius: 20px; padding: 15px; margin-bottom: 20px; border: 1px solid #eee; }
+    
+    .trx-item { 
+        background: white; border-radius: 18px; padding: 15px; margin-bottom: 12px; 
+        border-left: 6px solid transparent; box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+    .masuk { border-left-color: #10b981; }
+    .keluar { border-left-color: #ef4444; }
+    
+    .kategori-badge { font-size: 10px; background: #f0f2f5; color: #666; padding: 2px 8px; border-radius: 5px; margin-bottom: 5px; display: inline-block; }
+    .fab-add { position: fixed; bottom: 25px; right: 20px; width: 60px; height: 60px; border-radius: 50%; font-size: 28px; z-index: 1000; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
 </style>
 
 <div class="app-container">
-    <!-- FILTER SECTION -->
-    <div class="card-custom p-3 mb-4">
+    <!-- WIDGET SALDO AKHIR -->
+    <div class="saldo-card text-center">
+        <small class="opacity-75 fw-bold">SISA SALDO SAAT INI</small>
+        <h1 class="fw-bold mt-1">Rp <%= totalSaldo.toLocaleString('id-ID') %></h1>
+        <div class="mt-2 small opacity-75">Update: <%= formatTgl(new Date()) %></div>
+    </div>
+
+    <!-- FILTER DROPDOWN -->
+    <div class="filter-card">
         <div class="row g-2">
             <div class="col-5">
-                <select id="bln" class="form-select fw-bold text-primary">
+                <select id="bln" class="form-select border-0 bg-light rounded-3 fw-bold">
                     <option value="">Bulan</option>
                     <% ['01','02','03','04','05','06','07','08','09','10','11','12'].forEach((v, i) => { %>
                         <option value="<%= v %>" <%= selBulan == v ? 'selected' : '' %>><%= ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'][i] %></option>
@@ -25,75 +44,76 @@
                 </select>
             </div>
             <div class="col-4">
-                <select id="thn" class="form-select fw-bold text-primary">
+                <select id="thn" class="form-select border-0 bg-light rounded-3 fw-bold">
                     <option value="2026" <%= selTahun == '2026' ? 'selected' : '' %>>2026</option>
                     <option value="2025" <%= selTahun == '2025' ? 'selected' : '' %>>2025</option>
                 </select>
             </div>
             <div class="col-3">
-                <button onclick="applyFilter()" class="btn btn-primary w-100 fw-bold">Cari</button>
+                <button onclick="cari()" class="btn btn-primary w-100 rounded-3 fw-bold">Cari</button>
             </div>
         </div>
     </div>
 
-    <!-- LIST TRANSAKSI -->
-    <div class="d-flex justify-content-between mb-3 px-1">
-        <h6 class="fw-bold text-dark m-0"><%= selBulan ? 'Hasil Pencarian' : 'Update Terakhir' %></h6>
-        <small class="text-muted"><%= dataKas.length %> Data</small>
-    </div>
+    <!-- DAFTAR TRANSAKSI -->
+    <h6 class="fw-bold px-1 text-muted mb-3"><%= selBulan ? 'Filter Data' : 'Transaksi Terbaru' %></h6>
 
     <% dataKas.forEach(item => { %>
-        <div class="trx-card shadow-sm d-flex justify-content-between align-items-center <%= item.Debet > 0 ? 'trx-masuk' : 'trx-keluar' %>">
-            <div style="max-width: 65%;">
-                <div class="text-muted" style="font-size: 0.7rem;"><%= formatTgl(item.Tanggal) %></div>
-                <div class="fw-bold text-dark" style="font-size: 0.9rem;"><%= item.Keterangan %></div>
-                
-                <% let url = item["Bukti Transaksi"] || item.Bukti; %>
-                <% if(url && url != 'NULL' && url != '') { %>
-                    <a href="<%= url %>" target="_blank" class="badge bg-soft-info text-primary mt-1 border-0" style="font-size: 10px; background: #e7f3ff; text-decoration: none;">🖼️ Lihat Bukti</a>
-                <% } %>
-            </div>
-            <div class="text-end">
-                <% if(item.Debet > 0) { %>
-                    <div class="text-success fw-bold">+<%= item.Debet.toLocaleString('id-ID') %></div>
-                <% } else { %>
-                    <div class="text-danger fw-bold">-<%= item.Kredit.toLocaleString('id-ID') %></div>
-                <% } %>
-                <a href="/hapus/kas/<%= item.ID %>" class="text-muted small" onclick="return confirm('Hapus data ini?')">Hapus</a>
+        <div class="trx-item shadow-sm <%= item.Kredit > 0 ? 'masuk' : 'keluar' %>">
+            <div class="d-flex justify-content-between align-items-start">
+                <div style="max-width: 65%;">
+                    <span class="kategori-badge"><%= item.Kategori || 'Umum' %></span>
+                    <div class="text-muted" style="font-size: 11px;"><%= formatTgl(item.Tanggal) %></div>
+                    <div class="fw-bold text-dark mt-1" style="font-size: 14px;"><%= item.Keterangan %></div>
+                    
+                    <% let bukti = item["Bukti Transaksi"] || item.Bukti; %>
+                    <% if(bukti && bukti != 'NULL') { %>
+                        <a href="<%= bukti %>" target="_blank" class="text-primary small text-decoration-none d-block mt-2">📎 Lihat Bukti Foto</a>
+                    <% } %>
+                </div>
+                <div class="text-end">
+                    <% if(item.Kredit > 0) { %>
+                        <div class="text-success fw-bold">+<%= item.Kredit.toLocaleString('id-ID') %></div>
+                    <% } else { %>
+                        <div class="text-danger fw-bold">-<%= item.Debet.toLocaleString('id-ID') %></div>
+                    <% } %>
+                    <div class="text-muted mt-2" style="font-size: 11px;">Saldo: <%= item.saldoBerjalan.toLocaleString('id-ID') %></div>
+                    <a href="/hapus/kas/<%= item.ID %>" class="text-muted small d-block mt-1" onclick="return confirm('Hapus?')">Hapus</a>
+                </div>
             </div>
         </div>
     <% }) %>
 </div>
 
-<!-- TOMBOL TAMBAH -->
-<button class="btn btn-primary fab-add" data-bs-toggle="modal" data-bs-target="#modalKas">+</button>
+<button class="btn btn-primary fab-add" data-bs-toggle="modal" data-bs-target="#inModal">+</button>
 
-<!-- MODAL INPUT -->
-<div class="modal fade" id="modalKas" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered p-3">
-        <div class="modal-content border-0" style="border-radius: 25px;">
-            <div class="modal-body p-4">
-                <h5 class="fw-bold mb-4 text-center">Input Transaksi Kas</h5>
-                <form action="/tambah-kas" method="POST">
-                    <div class="mb-3"><label class="small fw-bold">Tanggal</label><input type="date" name="tanggal" class="form-control" required></div>
-                    <div class="mb-3"><label class="small fw-bold">Keterangan</label><input type="text" name="keterangan" class="form-control" placeholder="Beli lakban..." required></div>
-                    <div class="row g-2 mb-3">
-                        <div class="col"><label class="small fw-bold">Masuk (D)</label><input type="number" name="debet" class="form-control" value="0"></div>
-                        <div class="col"><label class="small fw-bold">Keluar (K)</label><input type="number" name="kredit" class="form-control" value="0"></div>
-                    </div>
-                    <div class="mb-4"><label class="small fw-bold">Link Bukti Google Drive</label><input type="text" name="bukti" class="form-control" placeholder="https://drive.google.com/..."></div>
-                    <button class="btn btn-primary w-100 py-3 rounded-4 shadow fw-bold">SIMPAN TRANSAKSI</button>
-                </form>
-            </div>
+<!-- MODAL INPUT (LENGKAP SESUAI DATABASE) -->
+<div class="modal fade" id="inModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered p-3"><div class="modal-content border-0" style="border-radius: 25px;"><div class="modal-body p-4">
+    <h5 class="fw-bold mb-4">Input Transaksi</h5>
+    <form action="/tambah-kas" method="POST">
+        <div class="mb-2"><label class="small fw-bold">Tanggal</label><input type="date" name="tanggal" class="form-control" required></div>
+        <div class="mb-2"><label class="small fw-bold">Kategori</label>
+            <select name="kategori" class="form-select">
+                <option value="(Ongkos Kirim)">(Ongkos Kirim)</option>
+                <option value="(Top Up Saldo)">(Top Up Saldo)</option>
+                <option value="(Iuran)">(Iuran)</option>
+                <option value="(Biaya lain)">(Biaya lain)</option>
+            </select>
         </div>
-    </div>
-</div>
+        <div class="mb-2"><label class="small fw-bold">Keterangan</label><input type="text" name="keterangan" class="form-control" required></div>
+        <div class="row g-2 mb-2">
+            <div class="col"><label class="small fw-bold">Masuk (TopUp)</label><input type="number" name="kredit" class="form-control" value="0"></div>
+            <div class="col"><label class="small fw-bold">Keluar (Ongkir)</label><input type="number" name="debet" class="form-control" value="0"></div>
+        </div>
+        <div class="mb-4"><label class="small fw-bold">Link Bukti Foto</label><input type="text" name="bukti" class="form-control"></div>
+        <button class="btn btn-primary w-100 py-3 rounded-4 fw-bold">SIMPAN DATA</button>
+    </form>
+</div></div></div></div>
 
 <script>
-    function applyFilter() {
+    function cari() {
         const b = document.getElementById('bln').value;
         const t = document.getElementById('thn').value;
         if(b && t) window.location.href = `/kas?bulan=${b}&tahun=${t}`;
-        else alert("Silakan pilih Bulan & Tahun dulu Bos!");
     }
 </script>

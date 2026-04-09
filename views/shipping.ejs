@@ -1,14 +1,42 @@
-<div class="mb-3 d-flex gap-2">
-    <input type="month" id="filterBulan" class="form-control" style="width: 200px;">
-    <button class="btn btn-primary" onclick="cariData()">Cari Tanggal Lama</button>
+<%- include('partials/navbar') %>
+<div class="container mt-4">
+    <!-- Form Tambah Data (Sama seperti sebelumnya) -->
+    <form action="/shipping/tambah" method="POST" class="row g-2 mb-4 p-3 bg-white shadow-sm rounded">
+        <!-- ... input form kamu ... -->
+        <div class="col-md-1"><button type="submit" class="btn btn-success">OK</button></div>
+    </form>
+
+    <!-- Fitur Cari Tanggal Lama -->
+    <div class="mb-3 d-flex gap-2 align-items-center">
+        <label>Cari Bulan:</label>
+        <input type="month" id="filterBulan" class="form-control" style="width: 200px;" value="<%= filterBulan %>">
+        <button class="btn btn-primary" onclick="cari()">Cari</button>
+        <a href="/" class="btn btn-secondary btn-sm">Reset</a>
+    </div>
+
+    <table class="table table-hover bg-white shadow-sm">
+        <thead class="table-dark">
+            <tr><th>TGL</th><th>SPX</th><th>JNE</th><th>JNT</th><th>SAME</th><th>TOTAL</th><th>AKSI</th></tr>
+        </thead>
+        <tbody>
+            <% dataShipping.forEach(item => { %>
+                <tr>
+                    <td><%= item.Tanggal %></td>
+                    <td><%= item.SPX %></td>
+                    <td><%= item.JNE %></td>
+                    <td><%= item.JNT %></td>
+                    <td><%= item["SAMEDAY/INSTANT"] %></td>
+                    <td class="fw-bold"><%= item["TOTAL Paket"] %></td>
+                    <td><a href="/hapus/shipping/<%= item.ID %>" class="text-danger">Del</a></td>
+                </tr>
+            <% }) %>
+        </tbody>
+    </table>
 </div>
 
 <script>
-function cariData() {
+function cari() {
     const bulan = document.getElementById('filterBulan').value;
-    if(bulan) {
-        // Ini akan mengarahkan ke halaman dengan filter (perlu update route di app.js)
-        window.location.href = `/?bulan=${bulan}`;
-    }
+    window.location.href = bulan ? `/?bulan=${bulan}` : '/';
 }
 </script>

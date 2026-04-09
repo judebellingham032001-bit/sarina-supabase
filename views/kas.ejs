@@ -4,65 +4,74 @@
     body { background-color: #f1f3f6; color: #333; }
     .app-container { max-width: 500px; margin: 0 auto; padding: 10px; }
     
-    /* Header Saldo */
     .header-saldo { 
-        background: #fff; border-radius: 15px; padding: 15px; 
+        background: white; border-radius: 20px; padding: 20px; 
         text-align: center; margin-bottom: 15px; border: 1px solid #e0e0e0;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     }
     
-    /* Baris Transaksi Padat */
+    .trx-list-wrapper { background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+
     .row-trx {
-        background: white; margin-bottom: 2px; padding: 12px 15px;
-        display: flex; align-items: center; justify-content: space-between;
+        padding: 15px;
+        display: flex; align-items: flex-start; justify-content: space-between;
         border-bottom: 1px solid #f0f0f0;
     }
-    .row-trx:first-child { border-radius: 15px 15px 0 0; }
-    .row-trx:last-child { border-radius: 0 0 15px 15px; margin-bottom: 20px; border-bottom: none; }
+    .row-trx:last-child { border-bottom: none; }
 
-    .col-info { flex: 1; }
-    .col-amount { text-align: right; min-width: 100px; }
+    .col-info { flex: 1; padding-right: 10px; }
+    .col-amount { text-align: right; min-width: 110px; }
     
-    .txt-tgl { font-size: 10px; color: #999; font-weight: bold; text-transform: uppercase; }
-    .txt-ket { font-size: 13px; font-weight: 600; color: #222; margin: 2px 0; }
-    .txt-bukti { font-size: 11px; color: #007AFF; text-decoration: none; }
+    .txt-tgl { font-size: 11px; color: #777; font-weight: 700; display: block; margin-bottom: 2px; }
+    .txt-kat { font-size: 10px; color: #007AFF; font-weight: 600; text-transform: uppercase; margin-bottom: 4px; display: block; }
+    .txt-ket { font-size: 14px; font-weight: 600; color: #222; line-height: 1.3; }
+    .txt-bukti { font-size: 11px; color: #007AFF; text-decoration: none; display: inline-block; margin-top: 8px; }
     
-    .amt-in { color: #28a745; font-weight: 700; font-size: 14px; }
-    .amt-out { color: #dc3545; font-weight: 700; font-size: 14px; }
-    .txt-saldo-run { font-size: 10px; color: #bbb; display: block; }
+    .amt-in { color: #10b981; font-weight: 800; font-size: 15px; display: block; }
+    .amt-out { color: #ef4444; font-weight: 800; font-size: 15px; display: block; }
+    .txt-saldo-run { font-size: 10px; color: #999; margin-top: 4px; display: block; }
 
-    .fab-add { position: fixed; bottom: 20px; right: 20px; width: 55px; height: 55px; border-radius: 50%; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+    .fab-add { position: fixed; bottom: 25px; right: 20px; width: 60px; height: 60px; border-radius: 50%; z-index: 1000; box-shadow: 0 8px 16px rgba(0,0,0,0.2); font-size: 24px; }
 </style>
 
 <div class="app-container">
-    <div class="header-saldo shadow-sm">
-        <small class="text-muted fw-bold">TOTAL SALDO AKHIR</small>
-        <h2 class="fw-bold text-primary m-0">Rp <%= totalSaldo.toLocaleString('id-ID') %></h2>
+    <!-- Header Saldo Utama -->
+    <div class="header-saldo">
+        <small class="text-muted fw-bold text-uppercase" style="letter-spacing: 1px;">Sisa Saldo Kas</small>
+        <h2 class="fw-bold text-primary m-0 mt-1">Rp <%= totalSaldo.toLocaleString('id-ID') %></h2>
     </div>
 
-    <!-- Filter Ringkas -->
+    <!-- Filter Dropdown -->
     <div class="d-flex gap-2 mb-3">
         <select id="bln" class="form-select form-select-sm border-0 shadow-sm rounded-3">
             <option value="">Bulan</option>
             <% ['01','02','03','04','05','06','07','08','09','10','11','12'].forEach((v, i) => { %>
-                <option value="<%= v %>" <%= selBulan == v ? 'selected' : '' %>><%= ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'][i] %></option>
+                <option value="<%= v %>" <%= selBulan == v ? 'selected' : '' %>><%= ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'][i] %></option>
             <% }) %>
         </select>
         <select id="thn" class="form-select form-select-sm border-0 shadow-sm rounded-3">
             <option value="2026" <%= selTahun == '2026' ? 'selected' : '' %>>2026</option>
             <option value="2025" <%= selTahun == '2025' ? 'selected' : '' %>>2025</option>
         </select>
-        <button onclick="cari()" class="btn btn-sm btn-dark rounded-3 px-3 shadow-sm">Cari</button>
+        <button onclick="cari()" class="btn btn-sm btn-primary rounded-3 px-3 shadow-sm fw-bold">CARI</button>
     </div>
 
-    <div class="shadow-sm">
+    <!-- Container List -->
+    <div class="trx-list-wrapper">
+        <% if(dataKas.length == 0) { %>
+            <div class="p-4 text-center text-muted">Tidak ada data ditemukan.</div>
+        <% } %>
+
         <% dataKas.forEach(item => { %>
             <div class="row-trx">
                 <div class="col-info">
-                    <div class="txt-tgl"><%= formatTgl(item.Tanggal) %> | <%= item.Kategori || 'UMUM' %></div>
+                    <span class="txt-tgl"><%= formatTgl(item.Tanggal) %></span>
+                    <span class="txt-kat"><%= item.Kategori || '(UMUM)' %></span>
                     <div class="txt-ket"><%= item.Keterangan %></div>
+                    
                     <% let link = item["Bukti Transaksi"] || item.Bukti; %>
-                    <% if(link && link != 'NULL') { %>
-                        <a href="<%= link %>" target="_blank" class="txt-bukti">📸 Lihat Bukti</a>
+                    <% if(link && link != 'NULL' && link != '') { %>
+                        <a href="<%= link %>" target="_blank" class="txt-bukti">🖼️ Lihat Bukti</a>
                     <% } %>
                 </div>
                 <div class="col-amount">
@@ -71,46 +80,54 @@
                     <% } else { %>
                         <span class="amt-out">-<%= item.Debet.toLocaleString('id-ID') %></span>
                     <% } %>
-                    <span class="txt-saldo-run">Sisa: <%= item.saldoBerjalan.toLocaleString('id-ID') %></span>
+                    <span class="txt-saldo-run">Saldo: <%= item.saldoBerjalan.toLocaleString('id-ID') %></span>
+                    <a href="/hapus/kas/<%= item.ID %>" class="text-muted" style="font-size: 10px;" onclick="return confirm('Hapus?')">Hapus</a>
                 </div>
             </div>
         <% }) %>
     </div>
     
-    <div class="text-center p-3 text-muted small">
-        — Transaksi Terbaru di Atas —
+    <div class="text-center p-4 text-muted small">
+        — Transaksi Terbaru di Paling Bawah —
     </div>
 </div>
 
 <button class="btn btn-primary fab-add fw-bold" data-bs-toggle="modal" data-bs-target="#addMod">+</button>
 
 <!-- Modal Input -->
-<div class="modal fade" id="addMod" tabindex="-1"><div class="modal-dialog modal-dialog-centered p-3"><div class="modal-content border-0" style="border-radius: 20px;"><div class="modal-body p-4">
-    <h5 class="fw-bold mb-4 text-center">Tambah Transaksi</h5>
-    <form action="/tambah-kas" method="POST">
-        <div class="mb-2"><input type="date" name="tanggal" class="form-control" required></div>
-        <div class="mb-2">
-            <select name="kategori" class="form-select">
-                <option value="(Ongkos Kirim)">(Ongkos Kirim)</option>
-                <option value="(Top Up Saldo)">(Top Up Saldo)</option>
-                <option value="(Iuran)">(Iuran)</option>
-                <option value="(Biaya lain)">(Biaya lain)</option>
-            </select>
+<div class="modal fade" id="addMod" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered p-3">
+        <div class="modal-content border-0" style="border-radius: 25px;">
+            <div class="modal-body p-4">
+                <h5 class="fw-bold mb-4 text-center">Tambah Transaksi</h5>
+                <form action="/tambah-kas" method="POST">
+                    <div class="mb-3"><label class="small fw-bold">Tanggal</label><input type="date" name="tanggal" class="form-control" required></div>
+                    <div class="mb-3"><label class="small fw-bold">Kategori</label>
+                        <select name="kategori" class="form-select">
+                            <option value="(Ongkos Kirim)">(Ongkos Kirim)</option>
+                            <option value="(Top Up Saldo)">(Top Up Saldo)</option>
+                            <option value="(Iuran)">(Iuran)</option>
+                            <option value="(Biaya lain)">(Biaya lain)</option>
+                        </select>
+                    </div>
+                    <div class="mb-3"><label class="small fw-bold">Keterangan</label><input type="text" name="keterangan" class="form-control" placeholder="Isi deskripsi..." required></div>
+                    <div class="row g-2 mb-3">
+                        <div class="col"><label class="small fw-bold">Masuk (Rp)</label><input type="number" name="kredit" class="form-control" value="0"></div>
+                        <div class="col"><label class="small fw-bold">Keluar (Rp)</label><input type="number" name="debet" class="form-control" value="0"></div>
+                    </div>
+                    <div class="mb-4"><label class="small fw-bold">Link Bukti Foto</label><input type="text" name="bukti" class="form-control" placeholder="https://drive.google.com/..."></div>
+                    <button class="btn btn-primary w-100 py-3 rounded-4 fw-bold shadow">SIMPAN DATA</button>
+                </form>
+            </div>
         </div>
-        <div class="mb-2"><input type="text" name="keterangan" class="form-control" placeholder="Keterangan..." required></div>
-        <div class="row g-2 mb-2">
-            <div class="col"><input type="number" name="kredit" class="form-control" placeholder="Masuk (Rp)"></div>
-            <div class="col"><input type="number" name="debet" class="form-control" placeholder="Keluar (Rp)"></div>
-        </div>
-        <div class="mb-4"><input type="text" name="bukti" class="form-control" placeholder="Link Bukti Foto"></div>
-        <button class="btn btn-primary w-100 py-3 rounded-4 fw-bold shadow">SIMPAN</button>
-    </form>
-</div></div></div></div>
+    </div>
+</div>
 
 <script>
     function cari() {
         const b = document.getElementById('bln').value;
         const t = document.getElementById('thn').value;
         if(b && t) window.location.href = `/kas?bulan=${b}&tahun=${t}`;
+        else alert("Pilih Bulan & Tahun dulu!");
     }
 </script>

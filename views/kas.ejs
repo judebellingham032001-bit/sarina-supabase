@@ -1,107 +1,131 @@
 <%- include('partials/navbar') %>
 
 <style>
-    /* Styling ala App Mobile */
-    body { background: #f4f7fa; padding-bottom: 80px; }
-    .app-card { background: white; border-radius: 18px; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 12px; transition: 0.2s; }
-    .amount-in { color: #10b981; font-weight: 700; font-size: 1.1rem; }
-    .amount-out { color: #ef4444; font-weight: 700; font-size: 1.1rem; }
-    .filter-bar { background: white; padding: 15px; border-radius: 20px; margin-bottom: 20px; border: 1px solid #eee; }
-    .floating-input-btn { position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: #007AFF; color: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 16px rgba(0,122,255,0.3); z-index: 1000; border: none; font-size: 24px; }
+    /* CSS Khusus Biar Kayak Aplikasi */
+    body { background-color: #f8f9fa; color: #333; }
+    .container-app { max-width: 500px; margin: 0 auto; padding: 15px; }
+    
+    /* Filter Bar */
+    .filter-section { background: white; border-radius: 15px; padding: 12px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+    .form-select-sm { border: none !important; background-color: #f1f3f5 !important; border-radius: 10px !important; font-weight: 600; }
+
+    /* Card List Transaksi */
+    .trx-item { 
+        background: white; 
+        border-radius: 16px; 
+        padding: 16px; 
+        margin-bottom: 12px; 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center;
+        border: 1px solid rgba(0,0,0,0.02);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    }
+    .trx-icon { width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 20px; }
+    .bg-masuk { background: #e6fcf5; color: #0ca678; }
+    .bg-keluar { background: #fff5f5; color: #fa5252; }
+    
+    .trx-info .title { font-weight: 700; font-size: 0.95rem; margin-bottom: 2px; display: block; }
+    .trx-info .date { font-size: 0.75rem; color: #adb5bd; }
+    
+    .trx-amount { text-align: right; }
+    .amount-plus { color: #0ca678; font-weight: 800; font-size: 1rem; }
+    .amount-minus { color: #fa5252; font-weight: 800; font-size: 1rem; }
+    .btn-bukti { font-size: 11px; padding: 2px 8px; border-radius: 8px; text-decoration: none; display: inline-block; margin-top: 5px; background: #e7f5ff; color: #228be6; font-weight: 600; }
+
+    /* Tombol Tambah Melayang */
+    .fab-add { position: fixed; bottom: 30px; right: 30px; width: 56px; height: 56px; border-radius: 50%; background: #228be6; color: white; border: none; box-shadow: 0 10px 20px rgba(34,139,230,0.3); font-size: 24px; display: flex; align-items: center; justify-content: center; z-index: 999; }
 </style>
 
-<div class="container mt-3">
-    <!-- Filter Dropdown (Tanpa Ketik) -->
-    <div class="filter-bar shadow-sm">
-        <div class="row g-2">
-            <div class="col-5">
-                <select id="bulan" class="form-select form-select-sm border-0 bg-light rounded-3">
-                    <option value="">Bulan</option>
-                    <% const bulanNama = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember']; %>
-                    <% bulanNama.forEach((m, i) => { %>
-                        <option value="<%= String(i+1).padStart(2, '0') %>" <%= selBulan == String(i+1).padStart(2, '0') ? 'selected' : '' %>><%= m %></option>
-                    <% }) %>
-                </select>
-            </div>
-            <div class="col-4">
-                <select id="tahun" class="form-select form-select-sm border-0 bg-light rounded-3">
-                    <option value="2025" <%= selTahun == '2025' ? 'selected' : '' %>>2025</option>
-                    <option value="2026" <%= selTahun == '2026' ? 'selected' : '' %>>2026</option>
-                </select>
-            </div>
-            <div class="col-3">
-                <button onclick="filterData()" class="btn btn-sm btn-primary w-100 rounded-3">Cari</button>
-            </div>
-        </div>
+<div class="container-app">
+    <!-- Header Ringkas -->
+    <div class="mb-3 px-1">
+        <h5 class="fw-bold m-0"><%= selBulan ? 'Hasil Pencarian' : 'Update Terakhir' %></h5>
+        <small class="text-muted"><%= dataKas.length %> Transaksi Ditemukan</small>
     </div>
 
-    <!-- Info Header -->
-    <div class="d-flex justify-content-between align-items-center mb-3 px-2">
-        <h6 class="fw-bold text-muted m-0"><%= selBulan ? 'Hasil Filter' : '10 Transaksi Terakhir' %></h6>
-        <button class="btn btn-sm btn-outline-primary rounded-pill border-0" data-bs-toggle="modal" data-bs-target="#modalInput">+ Tambah</button>
+    <!-- Filter Dropdown (Pilih Bulan & Tahun) -->
+    <div class="filter-section d-flex gap-2">
+        <select id="bulan" class="form-select form-select-sm">
+            <option value="">Bulan</option>
+            <% const listBulan = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember']; %>
+            <% listBulan.forEach((nm, i) => { %>
+                <option value="<%= String(i+1).padStart(2, '0') %>" <%= selBulan == String(i+1).padStart(2, '0') ? 'selected' : '' %>><%= nm %></option>
+            <% }) %>
+        </select>
+        <select id="tahun" class="form-select form-select-sm">
+            <option value="2026" <%= selTahun == '2026' ? 'selected' : '' %>>2026</option>
+            <option value="2025" <%= selTahun == '2025' ? 'selected' : '' %>>2025</option>
+        </select>
+        <button onclick="cari()" class="btn btn-dark btn-sm rounded-3 px-3">Cari</button>
     </div>
 
-    <!-- Looping Kartu Transaksi (Phone Friendly) -->
-    <div class="transaction-list">
+    <!-- List Transaksi Ala App -->
+    <div class="list-container">
+        <% if(dataKas.length == 0) { %>
+            <div class="text-center py-5 text-muted">Belum ada data...</div>
+        <% } %>
+
         <% dataKas.forEach(item => { %>
-            <div class="app-card p-3 d-flex align-items-center">
-                <div class="flex-grow-1">
-                    <div class="small text-muted mb-1"><%= tglIndo(item.Tanggal) %></div>
-                    <div class="fw-bold text-dark"><%= item.Keterangan %></div>
-                    <% let link = item["Bukti Transaksi"] || item.Bukti; %>
-                    <% if(link) { %>
-                        <a href="<%= link %>" target="_blank" class="text-primary small text-decoration-none">📎 Lihat Bukti</a>
-                    <% } %>
+            <div class="trx-item">
+                <div class="d-flex align-items-center">
+                    <div class="trx-icon <%= item.Debet > 0 ? 'bg-masuk' : 'bg-keluar' %>">
+                        <%= item.Debet > 0 ? '📥' : '📤' %>
+                    </div>
+                    <div class="trx-info">
+                        <span class="title"><%= item.Keterangan %></span>
+                        <span class="date"><%= formatTgl(item.Tanggal) %></span><br>
+                        <% let link = item["Bukti Transaksi"] || item.Bukti; %>
+                        <% if(link) { %>
+                            <a href="<%= link %>" target="_blank" class="btn-bukti">Bukti Trx</a>
+                        <% } %>
+                    </div>
                 </div>
-                <div class="text-end">
+                <div class="trx-amount">
                     <% if(item.Debet > 0) { %>
-                        <div class="amount-in">+<%= item.Debet.toLocaleString('id-ID') %></div>
+                        <div class="amount-plus">+<%= item.Debet.toLocaleString('id-ID') %></div>
                     <% } else { %>
-                        <div class="amount-out">-<%= item.Kredit.toLocaleString('id-ID') %></div>
+                        <div class="amount-minus">-<%= item.Kredit.toLocaleString('id-ID') %></div>
                     <% } %>
-                    <a href="/hapus/kas/<%= item.ID %>" class="text-muted" onclick="return confirm('Hapus?')"><small>Hapus</small></a>
+                    <a href="/hapus/kas/<%= item.ID %>" class="text-muted" style="font-size: 10px;" onclick="return confirm('Hapus?')">Hapus</a>
                 </div>
             </div>
         <% }) %>
     </div>
 </div>
 
-<!-- Modal Input (Muncul Pas Klik Tambah) -->
-<div class="modal fade" id="modalInput" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content border-0" style="border-radius: 25px;">
-      <div class="modal-body p-4">
-        <h5 class="fw-bold mb-4">Input Transaksi Baru</h5>
-        <form action="/tambah-kas" method="POST">
-            <div class="mb-3">
-                <label class="small fw-bold">Tanggal</label>
-                <input type="date" name="tanggal" class="form-control bg-light border-0" required>
+<!-- Button Tambah (Muncul Modal) -->
+<button class="fab-add" data-bs-toggle="modal" data-bs-target="#modalAdd">+</button>
+
+<!-- Modal Input -->
+<div class="modal fade" id="modalAdd" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered p-3">
+        <div class="modal-content border-0" style="border-radius: 20px;">
+            <div class="modal-body p-4">
+                <h6 class="fw-bold mb-4">Input Data Baru</h6>
+                <form action="/tambah-kas" method="POST">
+                    <div class="mb-3"><label class="small fw-bold">Tanggal</label><input type="date" name="tanggal" class="form-control bg-light border-0 rounded-3" required></div>
+                    <div class="mb-3"><label class="small fw-bold">Keterangan</label><input type="text" name="keterangan" class="form-control bg-light border-0 rounded-3" placeholder="Contoh: Ongkir Mede" required></div>
+                    <div class="row g-2 mb-3">
+                        <div class="col"><label class="small fw-bold">Masuk</label><input type="number" name="debet" class="form-control bg-light border-0 rounded-3" value="0"></div>
+                        <div class="col"><label class="small fw-bold">Keluar</label><input type="number" name="kredit" class="form-control bg-light border-0 rounded-3" value="0"></div>
+                    </div>
+                    <div class="mb-4"><label class="small fw-bold">Link GDrive Bukti</label><input type="text" name="bukti" class="form-control bg-light border-0 rounded-3"></div>
+                    <button class="btn btn-primary w-100 rounded-3 py-2 fw-bold">Simpan Transaksi</button>
+                </form>
             </div>
-            <div class="mb-3">
-                <label class="small fw-bold">Keterangan</label>
-                <input type="text" name="keterangan" class="form-control bg-light border-0" placeholder="Beli barang..." required>
-            </div>
-            <div class="row">
-                <div class="col"><label class="small fw-bold">Masuk</label><input type="number" name="debet" class="form-control bg-light border-0" value="0"></div>
-                <div class="col"><label class="small fw-bold">Keluar</label><input type="number" name="kredit" class="form-control bg-light border-0" value="0"></div>
-            </div>
-            <div class="mt-4">
-                <button class="btn btn-primary w-100 py-3 rounded-4 shadow">Simpan Data</button>
-            </div>
-        </form>
-      </div>
+        </div>
     </div>
-  </div>
 </div>
 
 <script>
-    function filterData() {
+    function cari() {
         const bln = document.getElementById('bulan').value;
         const thn = document.getElementById('tahun').value;
         if(bln && thn) {
             window.location.href = `/kas?bulan=${bln}&tahun=${thn}`;
         } else {
-            alert("Pilih Bulan dan Tahun dulu Bos!");
+            alert("Pilih Bulan & Tahun dulu Bos!");
         }
     }
 </script>

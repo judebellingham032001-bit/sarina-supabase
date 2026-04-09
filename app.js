@@ -12,41 +12,33 @@ app.set("view engine", "ejs");
 
 const formatTgl = (d) => {
     if (!d) return "-";
-    return new Date(d).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+    return new Date(d).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
 };
 
-// --- ROUTE KAS ---
 app.get('/kas', async (req, res) => {
     const { bulan, tahun } = req.query;
     try {
-        // Ambil semua data untuk menghitung saldo (fitur fit sesuai database)
+        // Ambil data untuk hitung saldo
         let query = supabase.from("KAS SARINA").select("*").order("Tanggal", { ascending: true });
-        
-        const { data: allData, error } = await query;
-        if (error) throw error;
+        const { data: allData } = await query;
 
-        // Hitung Saldo Berjalan
         let totalSaldo = 0;
-        const dataWithSaldo = allData.map(item => {
-            totalSaldo = totalSaldo + (item.Kredit || 0) - (item.Debet || 0); // Kredit - Debet sesuai gambar kamu
+        const mappedData = allData.map(item => {
+            totalSaldo = totalSaldo + (item.Kredit || 0) - (item.Debet || 0);
             return { ...item, saldoBerjalan: totalSaldo };
         });
 
-        // Balik urutan untuk tampilan web (terbaru di atas)
-        let displayData = [...dataWithSaldo].reverse();
-
-        // Filter jika ada input bulan & tahun
+        let displayData = mappedData;
         if (bulan && tahun) {
-            displayData = displayData.filter(item => 
-                item.Tanggal.startsWith(`${tahun}-${bulan}`)
-            );
+            displayData = mappedData.filter(item => item.Tanggal.startsWith(`${tahun}-${bulan}`));
         } else {
-            displayData = displayData.slice(0, 15); // Default tampilkan 15 transaksi terakhir
+            // Ambil 10 data TERAKHIR (tetap urut tanggal naik: lama ke baru)
+            displayData = mappedData.slice(-10);
         }
 
         res.render("kas", { 
             dataKas: displayData, 
-            totalSaldo: totalSaldo, // Kirim saldo akhir ke web
+            totalSaldo, 
             menu: 'kas', 
             selBulan: bulan || '', 
             selTahun: tahun || '',
@@ -58,18 +50,9 @@ app.get('/kas', async (req, res) => {
 app.post('/tambah-kas', async (req, res) => {
     const { tanggal, kategori, keterangan, debet, kredit, bukti } = req.body;
     await supabase.from("KAS SARINA").insert([{ 
-        Tanggal: tanggal, 
-        Kategori: kategori,
-        Keterangan: keterangan, 
-        Debet: debet || 0, 
-        Kredit: kredit || 0, 
-        "Bukti Transaksi": bukti 
+        Tanggal: tanggal, Kategori: kategori, Keterangan: keterangan, 
+        Debet: debet || 0, Kredit: kredit || 0, "Bukti Transaksi": bukti 
     }]);
-    res.redirect('/kas');
-});
-
-app.get('/hapus/kas/:id', async (req, res) => {
-    await supabase.from("KAS SARINA").delete().eq("ID", req.params.id);
     res.redirect('/kas');
 });
 

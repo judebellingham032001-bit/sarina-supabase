@@ -1,18 +1,21 @@
 <%- include('partials/navbar') %>
-<div class="container mt-4">
-    <h3 class="mb-3">Inventory Stok</h3>
-    <table class="table table-bordered bg-white shadow-sm">
-        <thead class="table-dark">
-            <tr><th>Nama Barang</th><th>Jumlah Stok</th><th>Aksi</th></tr>
-        </thead>
-        <tbody>
-            <% dataStok.forEach(item => { %>
+<div class="container">
+    <div class="card p-4">
+        <h3 class="fw-bold mb-4">📊 Data Stok Barang</h3>
+        <table class="table">
+            <thead class="table-dark">
+                <tr><th>Nama Barang</th><th>Jumlah</th><th>Aksi</th></tr>
+            </thead>
+            <tbody>
+                <% dataStok.forEach(item => { %>
                 <tr>
-                    <td><%= item.Nama_Barang %></td>
-                    <td><%= item.Stok %></td>
-                    <td><a href="/hapus/stok/<%= item.ID %>" class="btn btn-sm btn-danger">Hapus</a></td>
+                    <!-- Coba panggil Nama_Barang atau Barang -->
+                    <td class="fw-bold"><%= item.Nama_Barang || item.Barang || 'Nama Tidak Ditemukan' %></td>
+                    <td><span class="badge bg-primary px-3"><%= item.Stok || 0 %></span></td>
+                    <td><a href="/hapus/stok/<%= item.ID %>" class="text-danger">Hapus</a></td>
                 </tr>
-            <% }) %>
-        </tbody>
-    </table>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
 </div>

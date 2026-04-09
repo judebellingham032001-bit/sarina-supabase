@@ -1,47 +1,98 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root { --primary: #007AFF; --dark: #1C1C1E; --bg: #F2F2F7; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg); color: var(--dark); overflow-x: hidden; }
-        
-        /* Navbar Modern */
-        .navbar { background: white !important; border-bottom: 1px solid #E5E5EA; padding: 18px 0; sticky-top; }
-        .navbar-brand { font-weight: 800; letter-spacing: -1px; color: var(--dark) !important; font-size: 1.4rem; }
-        .nav-link { font-weight: 600; color: #8E8E93 !important; font-size: 0.95rem; padding: 8px 16px !important; }
-        .nav-link.active { color: var(--primary) !important; background: rgba(0,122,255,0.05); border-radius: 12px; }
+<%- include('partials/navbar') %>
 
-        /* Card Apple Style */
-        .card-pro { background: white; border-radius: 20px; border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.03); margin-bottom: 20px; }
-        .btn-input { background: var(--primary); border: none; border-radius: 14px; padding: 12px; font-weight: 700; transition: 0.3s; }
-        .btn-input:hover { background: #0056b3; transform: scale(1.02); }
+<div class="container mt-4">
+    <div class="row">
+        <!-- FORM INPUT (Mobile Friendly) -->
+        <div class="col-lg-4">
+            <div class="card-pro p-4 mb-4">
+                <h5 class="fw-bold mb-4">Tambah Transaksi</h5>
+                <form action="/tambah-kas" method="POST">
+                    <div class="mb-3">
+                        <label class="small fw-bold text-muted">Tanggal</label>
+                        <input type="date" name="tanggal" class="form-control form-control-lg border-0 bg-light" style="border-radius:12px" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="small fw-bold text-muted">Keterangan</label>
+                        <input type="text" name="keterangan" class="form-control form-control-lg border-0 bg-light" placeholder="Contoh: Beli Bubble Wrap" style="border-radius:12px" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="small fw-bold text-muted">Masuk (Rp)</label>
+                            <input type="number" name="debet" class="form-control border-0 bg-light" value="0" style="border-radius:12px">
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="small fw-bold text-muted">Keluar (Rp)</label>
+                            <input type="number" name="kredit" class="form-control border-0 bg-light" value="0" style="border-radius:12px">
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="small fw-bold text-muted">Link Bukti (Opsional)</label>
+                        <input type="text" name="bukti" class="form-control border-0 bg-light" placeholder="https://..." style="border-radius:12px">
+                    </div>
+                    <button class="btn btn-input btn-primary w-100 shadow-sm">Simpan Transaksi</button>
+                </form>
+            </div>
+        </div>
 
-        /* Table CSS */
-        .table { margin-bottom: 0; }
-        .table thead th { background: #F9F9F9; border: none; color: #8E8E93; font-size: 11px; text-transform: uppercase; padding: 15px; }
-        .table td { border-top: 1px solid #F2F2F7; padding: 18px 15px; vertical-align: middle; font-size: 0.9rem; }
-        
-        /* Responsive Table for Mobile */
-        @media (max-width: 768px) {
-            .table-responsive { border: none; }
-            .navbar-brand { font-size: 1.1rem; }
-            .nav-link { font-size: 0.8rem; padding: 6px 10px !important; }
-            .container { padding: 15px; }
-        }
-    </style>
-</head>
-<body>
-<nav class="navbar navbar-expand navbar-light sticky-top shadow-sm">
-    <div class="container">
-        <a class="navbar-brand" href="/">SARINA <span style="color:var(--primary)">PRO</span></a>
-        <div class="navbar-nav ms-auto">
-            <a class="nav-link <%= menu === 'shipping' ? 'active' : '' %>" href="/">Shipping</a>
-            <a class="nav-link <%= menu === 'stok' ? 'active' : '' %>" href="/stok">Stok</a>
-            <a class="nav-link <%= menu === 'kas' ? 'active' : '' %>" href="/kas">Kas</a>
+        <!-- DAFTAR MUTASI -->
+        <div class="col-lg-8">
+            <div class="card-pro p-3">
+                <div class="d-flex justify-content-between align-items-center px-2 mb-3">
+                    <h6 class="fw-bold m-0">Riwayat Mutasi</h6>
+                    <div class="d-flex gap-2">
+                        <input type="month" id="fBulan" class="form-control form-control-sm border-0 bg-light" value="<%= filterBulan %>">
+                        <button onclick="cari()" class="btn btn-sm btn-dark px-3 rounded-pill">Filter</button>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Tanggal Transaksi</th>
+                                <th>Deskripsi</th>
+                                <th class="text-end">Nominal</th>
+                                <th class="text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% dataKas.forEach(item => { %>
+                            <tr>
+                                <td style="white-space:nowrap">
+                                    <div class="fw-bold" style="font-size: 0.85rem;">
+                                        <%= formatTanggal(item.Tanggal) %>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="fw-semibold"><%= item.Keterangan %></div>
+                                    <% if(item.Bukti) { %>
+                                        <a href="<%= item.Bukti %>" target="_blank" class="text-primary x-small text-decoration-none">Lihat Bukti</a>
+                                    <% } %>
+                                </td>
+                                <td class="text-end">
+                                    <% if(item.Debet > 0) { %>
+                                        <span class="text-success fw-bold">+<%= item.Debet.toLocaleString('id-ID') %></span>
+                                    <% } else { %>
+                                        <span class="text-danger fw-bold">-<%= item.Kredit.toLocaleString('id-ID') %></span>
+                                    <% } %>
+                                </td>
+                                <td class="text-center">
+                                    <a href="/hapus/kas/<%= item.ID %>" class="text-muted opacity-50" onclick="return confirm('Hapus?')">✖</a>
+                                </td>
+                            </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
-</nav>
+</div>
+
+<script>
+    function cari() {
+        window.location.href = `/kas?bulan=${document.getElementById('fBulan').value}`;
+    }
+</script>
+</body>
+</html>

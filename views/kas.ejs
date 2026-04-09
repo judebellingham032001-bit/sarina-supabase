@@ -1,38 +1,19 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="bg-light">
 <%- include('partials/navbar') %>
-<div class="container">
-    <form action="/kas/tambah" method="POST" class="row g-2 mb-4 p-3 bg-white shadow-sm rounded">
-        <div class="col-md-5"><input type="text" name="ket" class="form-control" placeholder="Keterangan" required></div>
-        <div class="col-md-3"><input type="number" name="masuk" class="form-control" placeholder="Masuk (Debet)"></div>
-        <div class="col-md-3"><input type="number" name="keluar" class="form-control" placeholder="Keluar (Kredit)"></div>
-        <div class="col-md-1"><button type="submit" class="btn btn-warning w-100 fw-bold">OK</button></div>
-    </form>
-
-    <table class="table table-white table-hover shadow-sm rounded">
+<div class="container mt-4">
+    <h3 class="mb-3">Laporan Kas Sarina (10 Terakhir)</h3>
+    <table class="table table-striped bg-white shadow-sm">
         <thead class="table-warning">
-            <tr>
-                <th>TANGGAL</th><th>KETERANGAN</th><th>MASUK (DEBET)</th><th>KELUAR (KREDIT)</th><th>SALDO</th><th>AKSI</th>
-            </tr>
+            <tr><th>Keterangan</th><th>Masuk (D)</th><th>Keluar (K)</th><th>Aksi</th></tr>
         </thead>
         <tbody>
             <% dataKas.forEach(item => { %>
                 <tr>
-                    <td><%= item.Tanggal %></td>
                     <td><%= item.Keterangan %></td>
-                    <td class="text-success fw-bold"><%= item.Debet?.toLocaleString() %></td>
-                    <td class="text-danger fw-bold"><%= item.Kredit?.toLocaleString() %></td>
-                    <td class="fw-bold"><%= item.Saldo?.toLocaleString() %></td>
-                    <td><a href="/hapus/kas/<%= item.ID %>" class="text-danger">Del</a></td>
+                    <td class="text-success">+ <%= item.Debet %></td>
+                    <td class="text-danger">- <%= item.Kredit %></td>
+                    <td><a href="/hapus/kas/<%= item.ID %>" class="btn btn-sm btn-outline-danger">Del</a></td>
                 </tr>
             <% }) %>
         </tbody>
     </table>
 </div>
-</body>
-</html>

@@ -15,16 +15,10 @@ app.get('/', async (req, res) => {
     const { bulan } = req.query; 
     try {
         let query = supabase.from("SHIPPING SARINA").select("*");
-
         if (bulan) {
-            // Filter berdasarkan bulan (format YYYY-MM)
             query = query.gte("Tanggal", `${bulan}-01`).lte("Tanggal", `${bulan}-31`);
         }
-
-        const { data, error } = await query
-            .order("Tanggal", { ascending: false })
-            .limit(10);
-
+        const { data, error } = await query.order("Tanggal", { ascending: false }).limit(10);
         if (error) throw error;
         res.render("shipping", { dataShipping: data || [], menu: 'shipping', error: null, filterBulan: bulan || '' });
     } catch (err) {
@@ -32,14 +26,10 @@ app.get('/', async (req, res) => {
     }
 });
 
-// --- 2. STOK (Cek Nama Tabel & Kolom) ---
+// --- 2. STOK (Lengkap) ---
 app.get('/stok', async (req, res) => {
     try {
-        const { data, error } = await supabase
-            .from("STOK SARINA")
-            .select("*")
-            .order("ID", { ascending: true });
-
+        const { data, error } = await supabase.from("STOK SARINA").select("*").order("ID", { ascending: true });
         if (error) throw error;
         res.render("stok", { dataStok: data || [], menu: 'stok', error: null });
     } catch (err) {
@@ -50,12 +40,7 @@ app.get('/stok', async (req, res) => {
 // --- 3. KAS (Limit 10) ---
 app.get('/kas', async (req, res) => {
     try {
-        const { data, error } = await supabase
-            .from("KAS SARINA")
-            .select("*")
-            .order("ID", { ascending: false })
-            .limit(10);
-
+        const { data, error } = await supabase.from("KAS SARINA").select("*").order("ID", { ascending: false }).limit(10);
         if (error) throw error;
         res.render("kas", { dataKas: data || [], menu: 'kas', error: null });
     } catch (err) {

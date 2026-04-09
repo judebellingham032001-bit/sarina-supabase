@@ -1,19 +1,36 @@
 <%- include('partials/navbar') %>
-<div class="container mt-4">
-    <h3 class="mb-3">Laporan Kas Sarina (10 Terakhir)</h3>
-    <table class="table table-striped bg-white shadow-sm">
-        <thead class="table-warning">
-            <tr><th>Keterangan</th><th>Masuk (D)</th><th>Keluar (K)</th><th>Aksi</th></tr>
-        </thead>
-        <tbody>
-            <% dataKas.forEach(item => { %>
-                <tr>
-                    <td><%= item.Keterangan %></td>
-                    <td class="text-success">+ <%= item.Debet %></td>
-                    <td class="text-danger">- <%= item.Kredit %></td>
-                    <td><a href="/hapus/kas/<%= item.ID %>" class="btn btn-sm btn-outline-danger">Del</a></td>
-                </tr>
-            <% }) %>
-        </tbody>
-    </table>
+
+<div class="container">
+    <div class="card p-4">
+        <h3 class="fw-bold mb-4 text-dark">💰 Laporan Kas Sarina (10 Terakhir)</h3>
+        
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th width="50%">Keterangan</th>
+                        <th class="text-success">Masuk (D)</th>
+                        <th class="text-danger">Keluar (K)</th>
+                        <th class="text-center">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% dataKas.forEach(item => { %>
+                    <tr>
+                        <td><span class="text-muted small"><%= item.Keterangan %></span></td>
+                        <td class="fw-bold text-success">+ <%= (item.Debet || 0).toLocaleString('id-ID') %></td>
+                        <td class="fw-bold text-danger">- <%= (item.Kredit || 0).toLocaleString('id-ID') %></td>
+                        <td class="text-center">
+                            <a href="/hapus/kas/<%= item.ID %>" class="btn btn-sm btn-outline-danger" onclick="return confirm('Hapus?')">Del</a>
+                        </td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

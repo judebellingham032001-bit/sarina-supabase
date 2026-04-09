@@ -10,15 +10,19 @@ app.use(express.json());
 app.use(express.static("public"));
 app.set("view engine", "ejs");
 
+// HELPER: Format Tanggal Lengkap (Contoh: 10 April 2026)
 const formatTgl = (d) => {
     if (!d) return "-";
-    return new Date(d).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+    return new Date(d).toLocaleDateString('id-ID', { 
+        day: 'numeric', 
+        month: 'long', 
+        year: 'numeric' 
+    });
 };
 
 app.get('/kas', async (req, res) => {
     const { bulan, tahun } = req.query;
     try {
-        // Ambil data untuk hitung saldo
         let query = supabase.from("KAS SARINA").select("*").order("Tanggal", { ascending: true });
         const { data: allData } = await query;
 
@@ -32,7 +36,7 @@ app.get('/kas', async (req, res) => {
         if (bulan && tahun) {
             displayData = mappedData.filter(item => item.Tanggal.startsWith(`${tahun}-${bulan}`));
         } else {
-            // Ambil 10 data TERAKHIR (tetap urut tanggal naik: lama ke baru)
+            // Default: Ambil 10 transaksi terakhir (Urut: Lama ke Baru)
             displayData = mappedData.slice(-10);
         }
 

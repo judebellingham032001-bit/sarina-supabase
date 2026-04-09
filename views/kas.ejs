@@ -1,98 +1,95 @@
 <%- include('partials/navbar') %>
 
 <style>
-    body { background-color: #f4f6f9; }
-    .app-container { max-width: 500px; margin: 0 auto; padding: 15px; }
+    body { background-color: #f1f3f6; color: #333; }
+    .app-container { max-width: 500px; margin: 0 auto; padding: 10px; }
     
-    /* Widget Saldo Besar di Atas */
-    .saldo-card { 
-        background: linear-gradient(135deg, #007AFF 0%, #0056b3 100%); 
-        border-radius: 25px; padding: 25px; color: white; margin-bottom: 20px;
-        box-shadow: 0 10px 20px rgba(0,122,255,0.2);
+    /* Header Saldo */
+    .header-saldo { 
+        background: #fff; border-radius: 15px; padding: 15px; 
+        text-align: center; margin-bottom: 15px; border: 1px solid #e0e0e0;
     }
     
-    .filter-card { background: white; border-radius: 20px; padding: 15px; margin-bottom: 20px; border: 1px solid #eee; }
-    
-    .trx-item { 
-        background: white; border-radius: 18px; padding: 15px; margin-bottom: 12px; 
-        border-left: 6px solid transparent; box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    /* Baris Transaksi Padat */
+    .row-trx {
+        background: white; margin-bottom: 2px; padding: 12px 15px;
+        display: flex; align-items: center; justify-content: space-between;
+        border-bottom: 1px solid #f0f0f0;
     }
-    .masuk { border-left-color: #10b981; }
-    .keluar { border-left-color: #ef4444; }
+    .row-trx:first-child { border-radius: 15px 15px 0 0; }
+    .row-trx:last-child { border-radius: 0 0 15px 15px; margin-bottom: 20px; border-bottom: none; }
+
+    .col-info { flex: 1; }
+    .col-amount { text-align: right; min-width: 100px; }
     
-    .kategori-badge { font-size: 10px; background: #f0f2f5; color: #666; padding: 2px 8px; border-radius: 5px; margin-bottom: 5px; display: inline-block; }
-    .fab-add { position: fixed; bottom: 25px; right: 20px; width: 60px; height: 60px; border-radius: 50%; font-size: 28px; z-index: 1000; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+    .txt-tgl { font-size: 10px; color: #999; font-weight: bold; text-transform: uppercase; }
+    .txt-ket { font-size: 13px; font-weight: 600; color: #222; margin: 2px 0; }
+    .txt-bukti { font-size: 11px; color: #007AFF; text-decoration: none; }
+    
+    .amt-in { color: #28a745; font-weight: 700; font-size: 14px; }
+    .amt-out { color: #dc3545; font-weight: 700; font-size: 14px; }
+    .txt-saldo-run { font-size: 10px; color: #bbb; display: block; }
+
+    .fab-add { position: fixed; bottom: 20px; right: 20px; width: 55px; height: 55px; border-radius: 50%; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
 </style>
 
 <div class="app-container">
-    <!-- WIDGET SALDO AKHIR -->
-    <div class="saldo-card text-center">
-        <small class="opacity-75 fw-bold">SISA SALDO SAAT INI</small>
-        <h1 class="fw-bold mt-1">Rp <%= totalSaldo.toLocaleString('id-ID') %></h1>
-        <div class="mt-2 small opacity-75">Update: <%= formatTgl(new Date()) %></div>
+    <div class="header-saldo shadow-sm">
+        <small class="text-muted fw-bold">TOTAL SALDO AKHIR</small>
+        <h2 class="fw-bold text-primary m-0">Rp <%= totalSaldo.toLocaleString('id-ID') %></h2>
     </div>
 
-    <!-- FILTER DROPDOWN -->
-    <div class="filter-card">
-        <div class="row g-2">
-            <div class="col-5">
-                <select id="bln" class="form-select border-0 bg-light rounded-3 fw-bold">
-                    <option value="">Bulan</option>
-                    <% ['01','02','03','04','05','06','07','08','09','10','11','12'].forEach((v, i) => { %>
-                        <option value="<%= v %>" <%= selBulan == v ? 'selected' : '' %>><%= ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'][i] %></option>
-                    <% }) %>
-                </select>
-            </div>
-            <div class="col-4">
-                <select id="thn" class="form-select border-0 bg-light rounded-3 fw-bold">
-                    <option value="2026" <%= selTahun == '2026' ? 'selected' : '' %>>2026</option>
-                    <option value="2025" <%= selTahun == '2025' ? 'selected' : '' %>>2025</option>
-                </select>
-            </div>
-            <div class="col-3">
-                <button onclick="cari()" class="btn btn-primary w-100 rounded-3 fw-bold">Cari</button>
-            </div>
-        </div>
+    <!-- Filter Ringkas -->
+    <div class="d-flex gap-2 mb-3">
+        <select id="bln" class="form-select form-select-sm border-0 shadow-sm rounded-3">
+            <option value="">Bulan</option>
+            <% ['01','02','03','04','05','06','07','08','09','10','11','12'].forEach((v, i) => { %>
+                <option value="<%= v %>" <%= selBulan == v ? 'selected' : '' %>><%= ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'][i] %></option>
+            <% }) %>
+        </select>
+        <select id="thn" class="form-select form-select-sm border-0 shadow-sm rounded-3">
+            <option value="2026" <%= selTahun == '2026' ? 'selected' : '' %>>2026</option>
+            <option value="2025" <%= selTahun == '2025' ? 'selected' : '' %>>2025</option>
+        </select>
+        <button onclick="cari()" class="btn btn-sm btn-dark rounded-3 px-3 shadow-sm">Cari</button>
     </div>
 
-    <!-- DAFTAR TRANSAKSI -->
-    <h6 class="fw-bold px-1 text-muted mb-3"><%= selBulan ? 'Filter Data' : 'Transaksi Terbaru' %></h6>
-
-    <% dataKas.forEach(item => { %>
-        <div class="trx-item shadow-sm <%= item.Kredit > 0 ? 'masuk' : 'keluar' %>">
-            <div class="d-flex justify-content-between align-items-start">
-                <div style="max-width: 65%;">
-                    <span class="kategori-badge"><%= item.Kategori || 'Umum' %></span>
-                    <div class="text-muted" style="font-size: 11px;"><%= formatTgl(item.Tanggal) %></div>
-                    <div class="fw-bold text-dark mt-1" style="font-size: 14px;"><%= item.Keterangan %></div>
-                    
-                    <% let bukti = item["Bukti Transaksi"] || item.Bukti; %>
-                    <% if(bukti && bukti != 'NULL') { %>
-                        <a href="<%= bukti %>" target="_blank" class="text-primary small text-decoration-none d-block mt-2">📎 Lihat Bukti Foto</a>
+    <div class="shadow-sm">
+        <% dataKas.forEach(item => { %>
+            <div class="row-trx">
+                <div class="col-info">
+                    <div class="txt-tgl"><%= formatTgl(item.Tanggal) %> | <%= item.Kategori || 'UMUM' %></div>
+                    <div class="txt-ket"><%= item.Keterangan %></div>
+                    <% let link = item["Bukti Transaksi"] || item.Bukti; %>
+                    <% if(link && link != 'NULL') { %>
+                        <a href="<%= link %>" target="_blank" class="txt-bukti">📸 Lihat Bukti</a>
                     <% } %>
                 </div>
-                <div class="text-end">
+                <div class="col-amount">
                     <% if(item.Kredit > 0) { %>
-                        <div class="text-success fw-bold">+<%= item.Kredit.toLocaleString('id-ID') %></div>
+                        <span class="amt-in">+<%= item.Kredit.toLocaleString('id-ID') %></span>
                     <% } else { %>
-                        <div class="text-danger fw-bold">-<%= item.Debet.toLocaleString('id-ID') %></div>
+                        <span class="amt-out">-<%= item.Debet.toLocaleString('id-ID') %></span>
                     <% } %>
-                    <div class="text-muted mt-2" style="font-size: 11px;">Saldo: <%= item.saldoBerjalan.toLocaleString('id-ID') %></div>
-                    <a href="/hapus/kas/<%= item.ID %>" class="text-muted small d-block mt-1" onclick="return confirm('Hapus?')">Hapus</a>
+                    <span class="txt-saldo-run">Sisa: <%= item.saldoBerjalan.toLocaleString('id-ID') %></span>
                 </div>
             </div>
-        </div>
-    <% }) %>
+        <% }) %>
+    </div>
+    
+    <div class="text-center p-3 text-muted small">
+        — Transaksi Terbaru di Atas —
+    </div>
 </div>
 
-<button class="btn btn-primary fab-add" data-bs-toggle="modal" data-bs-target="#inModal">+</button>
+<button class="btn btn-primary fab-add fw-bold" data-bs-toggle="modal" data-bs-target="#addMod">+</button>
 
-<!-- MODAL INPUT (LENGKAP SESUAI DATABASE) -->
-<div class="modal fade" id="inModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered p-3"><div class="modal-content border-0" style="border-radius: 25px;"><div class="modal-body p-4">
-    <h5 class="fw-bold mb-4">Input Transaksi</h5>
+<!-- Modal Input -->
+<div class="modal fade" id="addMod" tabindex="-1"><div class="modal-dialog modal-dialog-centered p-3"><div class="modal-content border-0" style="border-radius: 20px;"><div class="modal-body p-4">
+    <h5 class="fw-bold mb-4 text-center">Tambah Transaksi</h5>
     <form action="/tambah-kas" method="POST">
-        <div class="mb-2"><label class="small fw-bold">Tanggal</label><input type="date" name="tanggal" class="form-control" required></div>
-        <div class="mb-2"><label class="small fw-bold">Kategori</label>
+        <div class="mb-2"><input type="date" name="tanggal" class="form-control" required></div>
+        <div class="mb-2">
             <select name="kategori" class="form-select">
                 <option value="(Ongkos Kirim)">(Ongkos Kirim)</option>
                 <option value="(Top Up Saldo)">(Top Up Saldo)</option>
@@ -100,13 +97,13 @@
                 <option value="(Biaya lain)">(Biaya lain)</option>
             </select>
         </div>
-        <div class="mb-2"><label class="small fw-bold">Keterangan</label><input type="text" name="keterangan" class="form-control" required></div>
+        <div class="mb-2"><input type="text" name="keterangan" class="form-control" placeholder="Keterangan..." required></div>
         <div class="row g-2 mb-2">
-            <div class="col"><label class="small fw-bold">Masuk (TopUp)</label><input type="number" name="kredit" class="form-control" value="0"></div>
-            <div class="col"><label class="small fw-bold">Keluar (Ongkir)</label><input type="number" name="debet" class="form-control" value="0"></div>
+            <div class="col"><input type="number" name="kredit" class="form-control" placeholder="Masuk (Rp)"></div>
+            <div class="col"><input type="number" name="debet" class="form-control" placeholder="Keluar (Rp)"></div>
         </div>
-        <div class="mb-4"><label class="small fw-bold">Link Bukti Foto</label><input type="text" name="bukti" class="form-control"></div>
-        <button class="btn btn-primary w-100 py-3 rounded-4 fw-bold">SIMPAN DATA</button>
+        <div class="mb-4"><input type="text" name="bukti" class="form-control" placeholder="Link Bukti Foto"></div>
+        <button class="btn btn-primary w-100 py-3 rounded-4 fw-bold shadow">SIMPAN</button>
     </form>
 </div></div></div></div>
 

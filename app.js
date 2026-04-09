@@ -10,37 +10,14 @@ app.use(express.json());
 app.use(express.static("public"));
 app.set("view engine", "ejs");
 
-// --- 1. SHIPPING (Limit 10 + Filter) ---
-app.get('/', async (req, res) => {
-    const { bulan } = req.query; 
-    try {
-        let query = supabase.from("SHIPPING SARINA").select("*");
-        if (bulan) {
-            query = query.gte("Tanggal", `${bulan}-01`).lte("Tanggal", `${bulan}-31`);
-        }
-        const { data, error } = await query.order("Tanggal", { ascending: false }).limit(10);
-        if (error) throw error;
-        res.render("shipping", { dataShipping: data || [], menu: 'shipping', error: null, filterBulan: bulan || '' });
-    } catch (err) {
-        res.render("shipping", { dataShipping: [], menu: 'shipping', error: err.message, filterBulan: '' });
-    }
-});
-
-// --- 2. STOK (Lengkap) ---
-app.get('/stok', async (req, res) => {
-    try {
-        const { data, error } = await supabase.from("STOK SARINA").select("*").order("ID", { ascending: true });
-        if (error) throw error;
-        res.render("stok", { dataStok: data || [], menu: 'stok', error: null });
-    } catch (err) {
-        res.render("stok", { dataStok: [], menu: 'stok', error: err.message });
-    }
-});
-
-// --- 3. KAS (Limit 10) ---
+// --- KAS (Terbaru di Bawah) ---
 app.get('/kas', async (req, res) => {
     try {
-        const { data, error } = await supabase.from("KAS SARINA").select("*").order("ID", { ascending: false }).limit(10);
+        const { data, error } = await supabase
+            .from("KAS SARINA")
+            .select("*")
+            .order("Tanggal", { ascending: true }) // ASC supaya yang baru di bawah
+            .limit(15); 
         if (error) throw error;
         res.render("kas", { dataKas: data || [], menu: 'kas', error: null });
     } catch (err) {
@@ -48,7 +25,27 @@ app.get('/kas', async (req, res) => {
     }
 });
 
-// --- ROUTE HAPUS (Universal) ---
+// --- SHIPPING ---
+app.get('/', async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from("SHIPPING SARINA")
+            .select("*")
+            .order("Tanggal", { ascending: true })
+            .limit(15);
+        res.render("shipping", { dataShipping: data || [], menu: 'shipping', error: error?.message || null, filterBulan: '' });
+    } catch (err) { res.render("shipping", { dataShipping: [], menu: 'shipping', error: err.message }); }
+});
+
+// --- STOK ---
+app.get('/stok', async (req, res) => {
+    try {
+        const { data, error } = await supabase.from("STOK SARINA").select("*").order("Nama_Barang", { ascending: true });
+        res.render("stok", { dataStok: data || [], menu: 'stok', error: error?.message || null });
+    } catch (err) { res.render("stok", { dataStok: [], menu: 'stok', error: err.message }); }
+});
+
+// --- ROUTE HAPUS ---
 app.get('/hapus/:tabel/:id', async (req, res) => {
     const { tabel, id } = req.params;
     let target = tabel === 'shipping' ? "SHIPPING SARINA" : (tabel === 'stok' ? "STOK SARINA" : "KAS SARINA");

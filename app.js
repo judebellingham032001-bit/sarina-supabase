@@ -10,31 +10,43 @@ app.use(express.json());
 app.use(express.static("public"));
 app.set("view engine", "ejs");
 
-// HELPER: Format Tanggal Indonesia
 const formatTgl = (d) => {
     if (!d) return "-";
-    return new Date(d).toLocaleDateString('id-ID', { 
-        day: 'numeric', 
-        month: 'long', 
-        year: 'numeric' 
-    });
+    return new Date(d).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
 };
 
 // --- ROUTE KAS ---
 app.get('/kas', async (req, res) => {
     const { bulan, tahun } = req.query;
     try {
-        let query = supabase.from("KAS SARINA").select("*");
-        if (bulan && tahun) {
-            query = query.gte("Tanggal", `${tahun}-${bulan}-01`).lte("Tanggal", `${tahun}-${bulan}-31`);
-        } else {
-            query = query.limit(10);
-        }
-        const { data, error } = await query.order("Tanggal", { ascending: false });
+        // Ambil semua data untuk menghitung saldo (fitur fit sesuai database)
+        let query = supabase.from("KAS SARINA").select("*").order("Tanggal", { ascending: true });
+        
+        const { data: allData, error } = await query;
         if (error) throw error;
 
+        // Hitung Saldo Berjalan
+        let totalSaldo = 0;
+        const dataWithSaldo = allData.map(item => {
+            totalSaldo = totalSaldo + (item.Kredit || 0) - (item.Debet || 0); // Kredit - Debet sesuai gambar kamu
+            return { ...item, saldoBerjalan: totalSaldo };
+        });
+
+        // Balik urutan untuk tampilan web (terbaru di atas)
+        let displayData = [...dataWithSaldo].reverse();
+
+        // Filter jika ada input bulan & tahun
+        if (bulan && tahun) {
+            displayData = displayData.filter(item => 
+                item.Tanggal.startsWith(`${tahun}-${bulan}`)
+            );
+        } else {
+            displayData = displayData.slice(0, 15); // Default tampilkan 15 transaksi terakhir
+        }
+
         res.render("kas", { 
-            dataKas: data || [], 
+            dataKas: displayData, 
+            totalSaldo: totalSaldo, // Kirim saldo akhir ke web
             menu: 'kas', 
             selBulan: bulan || '', 
             selTahun: tahun || '',
@@ -43,34 +55,11 @@ app.get('/kas', async (req, res) => {
     } catch (err) { res.status(500).send(err.message); }
 });
 
-// --- ROUTE SHIPPING ---
-app.get('/', async (req, res) => {
-    const { bulan, tahun } = req.query;
-    try {
-        let query = supabase.from("SHIPPING SARINA").select("*");
-        if (bulan && tahun) {
-            query = query.gte("Tanggal", `${tahun}-${bulan}-01`).lte("Tanggal", `${tahun}-${bulan}-31`);
-        } else {
-            query = query.limit(10);
-        }
-        const { data, error } = await query.order("Tanggal", { ascending: false });
-        if (error) throw error;
-
-        res.render("shipping", { 
-            dataShipping: data || [], 
-            menu: 'shipping', 
-            selBulan: bulan || '', 
-            selTahun: tahun || '',
-            formatTgl 
-        });
-    } catch (err) { res.status(500).send(err.message); }
-});
-
-// --- API TAMBAH KAS ---
 app.post('/tambah-kas', async (req, res) => {
-    const { tanggal, keterangan, debet, kredit, bukti } = req.body;
+    const { tanggal, kategori, keterangan, debet, kredit, bukti } = req.body;
     await supabase.from("KAS SARINA").insert([{ 
         Tanggal: tanggal, 
+        Kategori: kategori,
         Keterangan: keterangan, 
         Debet: debet || 0, 
         Kredit: kredit || 0, 
@@ -79,13 +68,10 @@ app.post('/tambah-kas', async (req, res) => {
     res.redirect('/kas');
 });
 
-// --- API HAPUS ---
-app.get('/hapus/:tabel/:id', async (req, res) => {
-    const { tabel, id } = req.params;
-    const target = tabel === 'kas' ? "KAS SARINA" : "SHIPPING SARINA";
-    await supabase.from(target).delete().eq("ID", id);
-    res.redirect('back');
+app.get('/hapus/kas/:id', async (req, res) => {
+    await supabase.from("KAS SARINA").delete().eq("ID", req.params.id);
+    res.redirect('/kas');
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Server jalan di http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Sarina Pro Online!`));

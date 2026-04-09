@@ -1,17 +1,10 @@
 <%- include('partials/navbar') %>
 <div class="container mt-4">
-    <!-- Form Tambah Data (Sama seperti sebelumnya) -->
-    <form action="/shipping/tambah" method="POST" class="row g-2 mb-4 p-3 bg-white shadow-sm rounded">
-        <!-- ... input form kamu ... -->
-        <div class="col-md-1"><button type="submit" class="btn btn-success">OK</button></div>
-    </form>
-
-    <!-- Fitur Cari Tanggal Lama -->
+    <!-- Filter Bulan -->
     <div class="mb-3 d-flex gap-2 align-items-center">
-        <label>Cari Bulan:</label>
-        <input type="month" id="filterBulan" class="form-control" style="width: 200px;" value="<%= filterBulan %>">
-        <button class="btn btn-primary" onclick="cari()">Cari</button>
-        <a href="/" class="btn btn-secondary btn-sm">Reset</a>
+        <input type="month" id="filterBulan" class="form-control" style="width: 250px;" value="<%= filterBulan %>">
+        <button class="btn btn-primary" onclick="cari()">Cari Tanggal Lama</button>
+        <a href="/" class="btn btn-secondary">Reset</a>
     </div>
 
     <table class="table table-hover bg-white shadow-sm">
@@ -33,10 +26,9 @@
         </tbody>
     </table>
 </div>
-
 <script>
 function cari() {
-    const bulan = document.getElementById('filterBulan').value;
-    window.location.href = bulan ? `/?bulan=${bulan}` : '/';
+    const b = document.getElementById('filterBulan').value;
+    window.location.href = b ? `/?bulan=${b}` : '/';
 }
 </script>
